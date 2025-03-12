@@ -1,4 +1,4 @@
-package com.seasugar.mynetty.server;
+package com.seasugar.nio.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

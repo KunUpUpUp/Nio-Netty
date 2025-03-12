@@ -1,15 +1,14 @@
-package com.seasugar.mynetty;
+package com.seasugar.nio;
 
-import com.seasugar.mynetty.client.MyClient;
-import com.seasugar.mynetty.server.MyServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
+
 import java.nio.ByteBuffer;
 
 @SpringBootTest
-class MyNettyApplicationTests {
+class NioApplicationTests {
 
     @Test
     void contextLoads() {
@@ -33,5 +32,6 @@ class MyNettyApplicationTests {
             }
         }
     }
+
 
 }

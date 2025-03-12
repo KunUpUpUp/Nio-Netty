@@ -1,4 +1,4 @@
-//package com.seasugar.mynetty.client;
+//package com.seasugar.nio.client;
 //
 //import java.io.IOException;
 //import java.nio.ByteBuffer;

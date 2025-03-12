@@ -1,6 +1,4 @@
-package com.seasugar.mynetty.client;
-
-import com.seasugar.mynetty.server.MyServer;
+package com.seasugar.nio.client;
 
 import java.io.IOException;
 
