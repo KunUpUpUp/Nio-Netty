@@ -1,10 +1,15 @@
 package com.seasugar.netty.server;
 
+import com.seasugar.netty.handler.MsgInHandler;
+import com.seasugar.netty.message.SendMsg;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
@@ -25,9 +30,12 @@ public class Server {
                         @Override
                         public void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
-                            ch.pipeline().addLast(new StringEncoder());
-                            ch.pipeline().addLast(new StringDecoder());
+//                            ch.pipeline().addLast(new StringEncoder());
+//                            ch.pipeline().addLast(new StringDecoder());
+                            ch.pipeline().addLast(new ObjectEncoder());
+                            ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.softCachingConcurrentResolver(SendMsg.class.getClassLoader())));
                             ch.pipeline().addLast(new ServerInHandler());
+                            ch.pipeline().addLast(new MsgInHandler());
                             ch.pipeline().addLast(new ServerOutHandler());
                         }
                     });

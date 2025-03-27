@@ -6,11 +6,14 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
+import com.seasugar.netty.message.SendMsg;
 
 import java.util.Scanner;
 
@@ -28,6 +31,7 @@ public class Client {
                             ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
                             ch.pipeline().addLast(new StringEncoder());
                             ch.pipeline().addLast(new StringDecoder());
+                            ch.pipeline().addLast(new ObjectEncoder());
                             ch.pipeline().addLast(new ClientHandler());
                         }
                     });
@@ -45,26 +49,35 @@ public class Client {
 @Slf4j
 class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        Scanner sc = new Scanner(System.in);
-        while (true) {
-            String op = sc.next();
-            switch (op) {
-                case "send":
-                    String msg = sc.next();
-                    ctx.writeAndFlush(msg);
-                    break;
-                case "exit":
-                    ctx.close();
-                    return;
+    public void channelActive(ChannelHandlerContext ctx) {
+        new Thread(() -> {
+            Scanner sc = new Scanner(System.in);
+            while (true) {
+                String op = sc.nextLine();
+                switch (op) {
+                    case "send":
+                        String msg = sc.nextLine();
+                        ctx.writeAndFlush(msg);
+                        break;
+                    case "sendMsg":
+                        String message = sc.nextLine();
+                        SendMsg sendMsg = new SendMsg();
+                        sendMsg.setMsg(message);
+                        sendMsg.setFrom("111");
+                        ctx.writeAndFlush(sendMsg);
+                        break;
+                    case "exit":
+                        ctx.close();
+                        return;
+                }
             }
-        }
+        }).start();
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof String) {
-            log.info("客户端接收: " + msg.toString());
+            log.info("客户端接收: " + msg);
         }
     }
 
