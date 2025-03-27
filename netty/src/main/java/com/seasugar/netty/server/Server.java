@@ -23,15 +23,14 @@ public class Server {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
+                        public void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
-                            ch.pipeline().addLast(new StringDecoder());
                             ch.pipeline().addLast(new StringEncoder());
-                            ch.pipeline().addLast(new ServerHandler());
+                            ch.pipeline().addLast(new StringDecoder());
+                            ch.pipeline().addLast(new ServerInHandler());
+                            ch.pipeline().addLast(new ServerOutHandler());
                         }
-                    })
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    });
 
             ChannelFuture f = b.bind(8080).sync();
             f.channel().closeFuture().sync();
@@ -43,7 +42,7 @@ public class Server {
 }
 
 @Slf4j
-class ServerHandler extends ChannelInboundHandlerAdapter {
+class ServerInHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("{}连接", ctx.channel().remoteAddress());
@@ -52,7 +51,29 @@ class ServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("Server received: " + msg.toString());
+        if (msg instanceof String) {
+            ctx.writeAndFlush("服务端已接受您的消息" + msg);
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        log.info("{}断开连接", ctx.channel().remoteAddress());
+        ctx.channel().close();
+    }
+}
+
+
+@Slf4j
+class ServerOutHandler extends ChannelOutboundHandlerAdapter {
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
     }
 
     @Override
@@ -61,3 +82,5 @@ class ServerHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 }
+
+
