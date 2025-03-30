@@ -1,17 +1,14 @@
 package com.seasugar.netty.server;
 
 import com.seasugar.netty.handler.MsgInHandler;
-import com.seasugar.netty.message.SendMsg;
+import com.seasugar.netty.protocol.MessageDuplxCodec;
+import com.seasugar.netty.message.ResponseMessage;
+import com.seasugar.netty.protocol.ProcotolFrameDecoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -27,16 +24,14 @@ public class Server {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
+                        // 入站顺序、出站逆序
                         @Override
                         public void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
-//                            ch.pipeline().addLast(new StringEncoder());
-//                            ch.pipeline().addLast(new StringDecoder());
-                            ch.pipeline().addLast(new ObjectEncoder());
-                            ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.softCachingConcurrentResolver(SendMsg.class.getClassLoader())));
-                            ch.pipeline().addLast(new ServerInHandler());
+                            ch.pipeline().addLast(new ProcotolFrameDecoder());
+                            ch.pipeline().addLast(new MessageDuplxCodec());
                             ch.pipeline().addLast(new MsgInHandler());
-                            ch.pipeline().addLast(new ServerOutHandler());
+                            ch.pipeline().addLast(new ServerHandler());
                         }
                     });
 
@@ -50,18 +45,16 @@ public class Server {
 }
 
 @Slf4j
-class ServerInHandler extends ChannelInboundHandlerAdapter {
+class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("{}连接", ctx.channel().remoteAddress());
-        ctx.writeAndFlush("欢迎加入聊天室");
+        ctx.writeAndFlush(new ResponseMessage((byte) 0x00, "111", "欢迎加入聊天室", (byte) 0x01));
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof String) {
-            ctx.writeAndFlush("服务端已接受您的消息" + msg);
-        }
+        ctx.writeAndFlush(new ResponseMessage((byte) 0x00, "111", "服务端已接受您的消息————" + msg, (byte) 0x01));
     }
 
     @Override
@@ -74,20 +67,6 @@ class ServerInHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         log.info("{}断开连接", ctx.channel().remoteAddress());
         ctx.channel().close();
-    }
-}
-
-
-@Slf4j
-class ServerOutHandler extends ChannelOutboundHandlerAdapter {
-    @Override
-    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
-        ctx.close();
     }
 }
 

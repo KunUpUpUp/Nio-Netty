@@ -1,19 +1,18 @@
 package com.seasugar.netty.client;
 
+import com.seasugar.netty.message.LoginMessage;
+import com.seasugar.netty.message.OtherMessage;
+import com.seasugar.netty.protocol.MessageDuplxCodec;
+import com.seasugar.netty.message.Message;
+import com.seasugar.netty.protocol.ProcotolFrameDecoder;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.MessageToByteEncoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
-import com.seasugar.netty.message.SendMsg;
 
 import java.util.Scanner;
 
@@ -29,9 +28,8 @@ public class Client {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
-                            ch.pipeline().addLast(new StringEncoder());
-                            ch.pipeline().addLast(new StringDecoder());
-                            ch.pipeline().addLast(new ObjectEncoder());
+                            ch.pipeline().addLast(new ProcotolFrameDecoder());
+                            ch.pipeline().addLast(new MessageDuplxCodec());
                             ch.pipeline().addLast(new ClientHandler());
                         }
                     });
@@ -53,18 +51,22 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
         new Thread(() -> {
             Scanner sc = new Scanner(System.in);
             while (true) {
+                log.info("请输入操作(send/exit)");
                 String op = sc.nextLine();
                 switch (op) {
                     case "send":
-                        String msg = sc.nextLine();
-                        ctx.writeAndFlush(msg);
-                        break;
-                    case "sendMsg":
                         String message = sc.nextLine();
-                        SendMsg sendMsg = new SendMsg();
+                        OtherMessage sendMsg = new OtherMessage();
                         sendMsg.setMsg(message);
                         sendMsg.setFrom("111");
-                        ctx.writeAndFlush(sendMsg);
+                        ctx.write(sendMsg);
+                        LoginMessage loginMessage = new LoginMessage();
+                        loginMessage.setMsg("第二阶段");
+                        loginMessage.setFrom("111");
+                        loginMessage.setUsername("zkp");
+                        loginMessage.setPassword("123");
+                        ctx.write(loginMessage);
+                        ctx.flush();
                         break;
                     case "exit":
                         ctx.close();
@@ -76,8 +78,8 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        if (msg instanceof String) {
-            log.info("客户端接收: " + msg);
+        if (msg instanceof Message) {
+            log.info(((Message) msg).getMsg());
         }
     }
 
