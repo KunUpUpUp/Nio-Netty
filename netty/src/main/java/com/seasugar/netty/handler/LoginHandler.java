@@ -23,7 +23,7 @@ public class LoginHandler extends SimpleChannelInboundHandler<LoginMessage> {
     @Autowired
     private LoginService loginService;
 
-    final static Map<Channel, String> userMap = new HashMap<>();
+    final static Map<String, Channel> userMap = new HashMap<>();
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LoginMessage msg) {
@@ -31,12 +31,12 @@ public class LoginHandler extends SimpleChannelInboundHandler<LoginMessage> {
         try {
             User user = loginService.login(msg.getUsername(), msg.getPassword());
             if (user != null) {
-                userMap.put(ctx.channel(), user.getUsername());
-                ctx.writeAndFlush(new ResponseMessage((byte) 0x00, ctx.channel().remoteAddress().toString(), msg.getUsername() + " 登录成功", (byte) 0x01));
+                userMap.put(user.getUsername(), ctx.channel());
+                ctx.writeAndFlush(new ResponseMessage((byte) 0x00, "服务器", msg.getUsername() + " 登录成功", (byte) 0x01));
             }
         } catch (Exception e) {
             // 直接throw会造成断联
-            ctx.writeAndFlush(new ResponseMessage((byte) 0x00, ctx.channel().remoteAddress().toString(), msg.getUsername() + " 登录失败", (byte) 0x00));
+            ctx.writeAndFlush(new ResponseMessage((byte) 0x00, "服务器", msg.getUsername() + " 登录失败" + e.getMessage(), (byte) 0x00));
         }
     }
 }

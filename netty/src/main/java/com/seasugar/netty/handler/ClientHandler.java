@@ -41,8 +41,10 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
 
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, ResponseMessage responseMessage) throws Exception {
-        log.info("收到消息:{}", responseMessage.getMsg());
+    protected void channelRead0(ChannelHandlerContext ctx, ResponseMessage msg) throws Exception {
+        if (msg.getFrom().equals() {
+            log.info("收到来自{}的消息:{}", msg.getFrom(), msg.getMsg());
+        }
     }
 
     @Override
