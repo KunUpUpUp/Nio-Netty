@@ -5,8 +5,12 @@
     <groupId>com.seasugar</groupId>
     <artifactId>my-netty</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>my-netty</name>
     <description>my-netty</description>
+    <modules>
+        <module>netty-itcast</module>
+    </modules>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
