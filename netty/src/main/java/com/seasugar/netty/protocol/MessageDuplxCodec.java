@@ -36,7 +36,8 @@ public class MessageDuplxCodec extends MessageToMessageCodec<ByteBuf, Message> {
         // 解码类型 1字节 json
         out.writeByte(0x00);
         // 消息类型 1字节
-        out.writeByte(msg.getType());
+        byte type = msg.getType();
+        out.writeByte(type);
         // 消息长度 转为json后的长度 4字节
         byte[] jsonMsg = JSON.toJSONBytes(msg);
         out.writeInt(jsonMsg.length);
@@ -82,8 +83,7 @@ public class MessageDuplxCodec extends MessageToMessageCodec<ByteBuf, Message> {
         try {
             Message msg = JSON.parseObject(content, clazz);
             out.add(msg);
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
