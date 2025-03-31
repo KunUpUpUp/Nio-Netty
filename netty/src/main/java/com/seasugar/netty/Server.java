@@ -16,11 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @SpringBootApplication
-@Component
 public class Server {
 
     @Autowired
@@ -29,6 +30,9 @@ public class Server {
     private ChatHandler chatHandler;
     @Autowired
     private ServerHandler serverHandler;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(Server.class, args);
@@ -77,9 +81,12 @@ public class Server {
                                         .addLast(new MessageDuplxCodec())
                                         // 如果不传递，就会被第一个Handler处理
 //                                        .addLast(serverHandler)
-                                        .addLast(loginHandler)
-                                        .addLast(chatHandler)
-                                        .addLast(serverHandler);
+//                                        .addLast(loginHandler)
+//                                        .addLast(chatHandler)
+//                                        .addLast(serverHandler);
+                                        .addLast(applicationContext.getBean(LoginHandler.class))
+                                        .addLast(applicationContext.getBean(ChatHandler.class))
+                                        .addLast(applicationContext.getBean(ServerHandler.class));
                             }
                         });
 

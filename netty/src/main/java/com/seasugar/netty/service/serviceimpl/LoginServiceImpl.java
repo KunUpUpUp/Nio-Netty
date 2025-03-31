@@ -43,12 +43,12 @@ public class LoginServiceImpl implements LoginService {
                 throw new AuthenticationException("用户名或密码错误");
             }
 
-            new Thread(() -> {
+//            new Thread(() -> {
                 // 更新最后登录时间
-                user.setLastLoginTime(new Date());
-                user.setUpdateTime(new Date());
-                loginMapper.updateById(user);
-            }).start();
+//                user.setLastLoginTime(new Date());
+//                user.setUpdateTime(new Date());
+//                loginMapper.updateById(user);
+//            }).start();
             return user;  // 返回用户信息供后续使用
         } catch (AuthenticationException e) {
             throw new RuntimeException(e);

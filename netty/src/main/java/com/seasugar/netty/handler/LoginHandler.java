@@ -10,12 +10,15 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Handler
+// 要么@ChannelHandler.Sharable单实例，适用于无状态handler，要么@Scope("prototype")多实例
+@Scope("prototype")
 public class LoginHandler extends SimpleChannelInboundHandler<LoginMessage> {
     @Autowired
     private LoginService loginService;
