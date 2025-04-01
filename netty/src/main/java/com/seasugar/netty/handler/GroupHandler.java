@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.seasugar.netty.handler.LoginHandler.ID_USER;
 import static com.seasugar.netty.handler.LoginHandler.USER_MAP;
 
 @Slf4j

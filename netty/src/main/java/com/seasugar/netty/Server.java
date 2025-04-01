@@ -1,9 +1,6 @@
 package com.seasugar.netty;
 
-import com.seasugar.netty.handler.ChatHandler;
-import com.seasugar.netty.handler.GroupHandler;
-import com.seasugar.netty.handler.LoginHandler;
-import com.seasugar.netty.handler.ServerHandler;
+import com.seasugar.netty.handler.*;
 import com.seasugar.netty.protocol.MessageDuplxCodec;
 import com.seasugar.netty.protocol.ProcotolFrameDecoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -50,6 +47,7 @@ public class Server {
                                         .addLast(applicationContext.getBean(LoginHandler.class))
                                         .addLast(applicationContext.getBean(ChatHandler.class))
                                         .addLast(applicationContext.getBean(GroupHandler.class))
+                                        .addLast(applicationContext.getBean(QuitGroupHandler.class))
                                         .addLast(applicationContext.getBean(ServerHandler.class));
                             }
                         });

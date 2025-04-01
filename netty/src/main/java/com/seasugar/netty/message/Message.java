@@ -29,6 +29,7 @@ public abstract class Message {
     final static byte CHAT = 0x02;
     final static byte RESPONSE = 0x03;
     final static byte GROUP = 0x04;
+    final static byte QUIT_GROUP = 0x05;
     final static byte OTHER = 0x7f;
 
     static {
@@ -36,6 +37,7 @@ public abstract class Message {
         MESSAGE_CLAZZ.put(LOGOUT, LogOutMessage.class);
         MESSAGE_CLAZZ.put(CHAT, ChatMessage.class);
         MESSAGE_CLAZZ.put(GROUP, GroupMessage.class);
+        MESSAGE_CLAZZ.put(QUIT_GROUP, QuitGroupMessage.class);
         MESSAGE_CLAZZ.put(RESPONSE, ResponseMessage.class);
     }
 }

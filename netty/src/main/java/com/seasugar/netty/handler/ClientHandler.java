@@ -20,7 +20,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
         new Thread(() -> {
             Scanner sc = new Scanner(System.in);
             while (true) {
-                log.info("请输入操作(login/send/exit)");
+                log.info("请输入操作(login/send/group/quit/exit)");
                 String op = sc.nextLine();
                 switch (op) {
                     case "login":
@@ -33,7 +33,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                         break;
                     case "send":
                         ChatMessage chatMessage = new ChatMessage();
-                        log.info("请输入聊天类型:");
+                        log.info("请输入聊天类型(0-私聊 1-群聊):");
                         byte messageType = sc.nextByte();
                         chatMessage.setMessageType(messageType);
                         // nextByte()不消耗换行符
@@ -48,7 +48,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                         } else if (messageType == 0x01) {
                             log.info("请输入内容:");
                             chatMessage.setMsg(sc.nextLine());
-                            log.info("请输入群主id:");
+                            log.info("请输入id:");
                             chatMessage.setFrom(sc.nextLong());
                             log.info("请输入群聊id:");
                             chatMessage.setTo(sc.nextLong());
@@ -59,21 +59,31 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                         GroupMessage groupMessage = new GroupMessage();
                         log.info("请输入群名:");
                         groupMessage.setGroupName(sc.nextLine());
+                        log.info("请输入群主id:");
+                        groupMessage.setFrom(sc.nextLong());
+                        sc.nextLine();
                         log.info("请输入要拉取人的id:");
                         groupMessage.setUserIds(sc.nextLine());
                         ctx.writeAndFlush(groupMessage);
                         break;
+                    case "quit" :
+                        QuitGroupMessage quitGroupMessage = new QuitGroupMessage();
+                        log.info("请输入群id:");
+                        quitGroupMessage.setGroupId(sc.nextLong());
+                        log.info("请输入您的id:");
+                        quitGroupMessage.setUserId(sc.nextLong());
+                        ctx.writeAndFlush(quitGroupMessage);
                     case "exit":
                         ctx.close();
                         return;
                     default:
                         break;
                 }
-                try {
-                    semaphore.acquire();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+//                try {
+//                    semaphore.acquire();
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
             }
         }).start();
     }
@@ -81,8 +91,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ResponseMessage msg) throws Exception {
-        log.info("收到来自{}的消息{}", msg.getSender(), msg.getMsg());
-        semaphore.release();
+        log.info("{}：{}", msg.getSender(), msg.getMsg());
+//        semaphore.release();
     }
 
 
