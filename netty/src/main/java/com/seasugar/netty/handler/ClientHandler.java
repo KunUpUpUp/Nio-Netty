@@ -7,10 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 @Slf4j
 @Component
 public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> {
+    private final Semaphore semaphore = new Semaphore(0);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -63,8 +66,14 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                     case "exit":
                         ctx.close();
                         return;
+                    default:
+                        break;
                 }
-
+                try {
+                    semaphore.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }).start();
     }
@@ -72,7 +81,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ResponseMessage msg) throws Exception {
-        log.info("收到来自{}的消息:{}", msg.getSender(), msg.getMsg());
+        log.info("收到来自{}的消息{}", msg.getSender(), msg.getMsg());
+        semaphore.release();
     }
 
 
