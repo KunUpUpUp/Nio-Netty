@@ -2,11 +2,11 @@
 package com.seasugar.netty.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.seasugar.netty.entity.User;
+import com.seasugar.netty.entity.tUser;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface LoginMapper extends BaseMapper<User> {
+public interface UserMapper extends BaseMapper<tUser> {
     // 继承BaseMapper后已包含基础CRUD方法
     // 如需自定义SQL查询可在此添加方法
 }

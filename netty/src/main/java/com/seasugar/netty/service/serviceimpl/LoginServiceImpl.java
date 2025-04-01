@@ -2,8 +2,8 @@ package com.seasugar.netty.service.serviceimpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.seasugar.netty.dao.LoginMapper;
-import com.seasugar.netty.entity.User;
+import com.seasugar.netty.dao.UserMapper;
+import com.seasugar.netty.entity.tUser;
 import com.seasugar.netty.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +15,10 @@ import java.util.Date;
 public class LoginServiceImpl implements LoginService {
 
     @Autowired
-    private LoginMapper loginMapper;
+    private UserMapper loginMapper;
 
     @Override
-    public User login(String username, String password) {
+    public tUser login(String username, String password) {
         try {
             // 参数校验
             if (StringUtils.isBlank(username)) {
@@ -29,8 +29,8 @@ public class LoginServiceImpl implements LoginService {
             }
 
             // 构建查询条件（使用Lambda表达式防止字段名拼写错误）
-            User user = loginMapper.selectOne(new LambdaQueryWrapper<User>()
-                    .eq(User::getUsername, username)
+            tUser user = loginMapper.selectOne(new LambdaQueryWrapper<tUser>()
+                    .eq(tUser::getUsername, username)
                     .last("LIMIT 1"));  // 明确限制只查一条记录
 
             // 用户不存在检查
@@ -43,12 +43,12 @@ public class LoginServiceImpl implements LoginService {
                 throw new AuthenticationException("用户名或密码错误");
             }
 
-//            new Thread(() -> {
-                // 更新最后登录时间
-//                user.setLastLoginTime(new Date());
-//                user.setUpdateTime(new Date());
-//                loginMapper.updateById(user);
-//            }).start();
+            new Thread(() -> {
+//                 更新最后登录时间
+                user.setLastLoginTime(new Date());
+                user.setUpdateTime(new Date());
+                loginMapper.updateById(user);
+            }).start();
             return user;  // 返回用户信息供后续使用
         } catch (AuthenticationException e) {
             throw new RuntimeException(e);

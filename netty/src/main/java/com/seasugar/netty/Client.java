@@ -22,7 +22,7 @@ public class Client {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
+//                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
                             ch.pipeline().addLast(new ProcotolFrameDecoder());
                             ch.pipeline().addLast(new MessageDuplxCodec());
                             ch.pipeline().addLast(new ClientHandler());

@@ -1,11 +1,22 @@
 package com.seasugar.netty.message;
 
+import lombok.Data;
+
+@Data
 public class ResponseMessage extends AbstractResponseMessage {
 
-    private String fromUser;
+    // 发送者名称
+    private String sender;
 
-    public ResponseMessage(byte protocol, String from, String msg, byte result) {
-        super(protocol, from, msg, result);
+
+    public ResponseMessage() {
+        super();
+
+    }
+
+    public ResponseMessage(String sender, byte protocol, Long from, String msg, byte result) {
+        super(protocol, from, 0L, msg, result);
+        this.sender = sender;
     }
 
     @Override

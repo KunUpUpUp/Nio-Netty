@@ -1,40 +1,70 @@
 package com.seasugar.netty.handler;
 
-import com.alibaba.fastjson2.JSON;
 import com.seasugar.netty.message.*;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
 
 @Slf4j
+@Component
 public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> {
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         new Thread(() -> {
             Scanner sc = new Scanner(System.in);
             while (true) {
-                log.info("请输入操作(send/exit)");
+                log.info("请输入操作(login/send/exit)");
                 String op = sc.nextLine();
                 switch (op) {
                     case "login":
                         LoginMessage loginMessage = new LoginMessage();
+                        log.info("请输入用户名:");
                         loginMessage.setUsername(sc.nextLine());
+                        log.info("请输入密码:");
                         loginMessage.setPassword(sc.nextLine());
                         ctx.writeAndFlush(loginMessage);
                         break;
                     case "send":
-                        String message = sc.nextLine();
                         ChatMessage chatMessage = new ChatMessage();
-                        chatMessage.setMsg(message);
+                        log.info("请输入聊天类型:");
+                        byte messageType = sc.nextByte();
+                        chatMessage.setMessageType(messageType);
+                        // nextByte()不消耗换行符
+                        sc.nextLine();
+                        if (messageType == 0x00) {
+                            log.info("请输入内容:");
+                            chatMessage.setMsg(sc.nextLine());
+                            log.info("请输入发送者id:");
+                            chatMessage.setFrom(sc.nextLong());
+                            log.info("请输入接收者id:");
+                            chatMessage.setTo(sc.nextLong());
+                        } else if (messageType == 0x01) {
+                            log.info("请输入内容:");
+                            chatMessage.setMsg(sc.nextLine());
+                            log.info("请输入群主id:");
+                            chatMessage.setFrom(sc.nextLong());
+                            log.info("请输入群聊id:");
+                            chatMessage.setTo(sc.nextLong());
+                        }
                         ctx.writeAndFlush(chatMessage);
+                        break;
+                    case "group":
+                        GroupMessage groupMessage = new GroupMessage();
+                        log.info("请输入群名:");
+                        groupMessage.setGroupName(sc.nextLine());
+                        log.info("请输入要拉取人的id:");
+                        groupMessage.setUserIds(sc.nextLine());
+                        ctx.writeAndFlush(groupMessage);
                         break;
                     case "exit":
                         ctx.close();
                         return;
                 }
+
             }
         }).start();
     }
@@ -42,10 +72,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ResponseMessage msg) throws Exception {
-        if (msg.getFrom().equals() {
-            log.info("收到来自{}的消息:{}", msg.getFrom(), msg.getMsg());
-        }
+        log.info("收到来自{}的消息:{}", msg.getSender(), msg.getMsg());
     }
+
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
