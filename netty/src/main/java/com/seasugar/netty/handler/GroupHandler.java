@@ -11,6 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 
 import java.util.ArrayList;
@@ -29,11 +30,14 @@ public class GroupHandler extends SimpleChannelInboundHandler<GroupMessage> {
 
     @Autowired
     private GroupMapper groupMapper;
+    @Autowired
+    private Map<Long, List<String>> GROUP_MAP;
 
     // 保证线程安全
-    public final static ConcurrentHashMap<Long, List<Channel>> GROUP_MAP = new ConcurrentHashMap<>();
+//    public final static ConcurrentHashMap<Long, List<Channel>> GROUP_MAP = new ConcurrentHashMap<>();
     // 使用静态属性，防止prototype出来的每个count都不同，由于在concurrentMap中计数，安全得以保证
 //    private static short COUNT;
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, GroupMessage msg) throws Exception {
@@ -45,14 +49,12 @@ public class GroupHandler extends SimpleChannelInboundHandler<GroupMessage> {
         new Thread(() -> broadCastMessage(maxId, ctx, msg)).start();
         List<String> userList = Arrays.asList(userIds.split(","));
         if (userList.size() > 1) {
-            List<Channel> channelList = new ArrayList<>(msg.getUserIds().length());
             for (Long userId : USER_MAP.keySet()) {
                 if (userList.contains(userId.toString())) {
-                    channelList.add(USER_MAP.get(userId));
                     USER_MAP.get(userId).writeAndFlush("加入 " + msg.getGroupName() + " 成功");
                 }
             }
-            GROUP_MAP.put(maxId, channelList);
+            GROUP_MAP.put(maxId, Arrays.asList(userIds.split(",")));
         }
     }
 

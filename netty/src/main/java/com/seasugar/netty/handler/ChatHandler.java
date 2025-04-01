@@ -7,9 +7,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
-import static com.seasugar.netty.handler.GroupHandler.GROUP_MAP;
+import java.util.List;
+import java.util.Map;
+
 import static com.seasugar.netty.handler.LoginHandler.ID_USER;
 import static com.seasugar.netty.handler.LoginHandler.USER_MAP;
 
@@ -17,6 +20,9 @@ import static com.seasugar.netty.handler.LoginHandler.USER_MAP;
 @Handler
 @Scope("prototype")
 public class ChatHandler extends SimpleChannelInboundHandler<ChatMessage> {
+
+    @Autowired
+    private Map<Long, List<String>> GROUP_MAP;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ChatMessage msg) {
@@ -33,8 +39,13 @@ public class ChatHandler extends SimpleChannelInboundHandler<ChatMessage> {
         } else if (msg.getMessageType() == 0x01) {
             // 群聊
             if (GROUP_MAP.containsKey(msg.getTo())) {
-                for (Channel channel : GROUP_MAP.get(msg.getTo())) {
-                    channel.writeAndFlush(new ResponseMessage(ID_USER.get(msg.getFrom()).getNickname(), (byte) 0x00, msg.getFrom(), msg.getMsg(), (byte) 0x01));
+                for (String user : GROUP_MAP.get(msg.getTo())) {
+                    for (Long userId : USER_MAP.keySet()) {
+                        if (userId.toString().equals(user)) {
+                            Channel channel = USER_MAP.get(userId);
+                            channel.writeAndFlush(new ResponseMessage(ID_USER.get(msg.getFrom()).getNickname(), (byte) 0x00, msg.getFrom(), msg.getMsg(), (byte) 0x01));
+                        }
+                    }
                 }
             }
         }

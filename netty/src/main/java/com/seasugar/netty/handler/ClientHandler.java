@@ -13,7 +13,7 @@ import java.util.concurrent.Semaphore;
 @Slf4j
 @Component
 public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> {
-    private final Semaphore semaphore = new Semaphore(0);
+//    private final Semaphore semaphore = new Semaphore(0);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -73,6 +73,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                         log.info("请输入您的id:");
                         quitGroupMessage.setUserId(sc.nextLong());
                         ctx.writeAndFlush(quitGroupMessage);
+                        break;
                     case "exit":
                         ctx.close();
                         return;
