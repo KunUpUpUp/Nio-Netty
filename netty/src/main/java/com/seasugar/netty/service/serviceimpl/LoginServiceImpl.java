@@ -15,7 +15,7 @@ import java.util.Date;
 public class LoginServiceImpl implements LoginService {
 
     @Autowired
-    private UserMapper loginMapper;
+    private UserMapper userMapper;
 
     @Override
     public tUser login(String username, String password) {
@@ -29,7 +29,7 @@ public class LoginServiceImpl implements LoginService {
             }
 
             // 构建查询条件（使用Lambda表达式防止字段名拼写错误）
-            tUser user = loginMapper.selectOne(new LambdaQueryWrapper<tUser>()
+            tUser user = userMapper.selectOne(new LambdaQueryWrapper<tUser>()
                     .eq(tUser::getUsername, username)
                     .last("LIMIT 1"));  // 明确限制只查一条记录
 
@@ -43,11 +43,13 @@ public class LoginServiceImpl implements LoginService {
                 throw new AuthenticationException("用户名或密码错误");
             }
 
+            // 用户登录成功——更新数据库
             new Thread(() -> {
 //                 更新最后登录时间
                 user.setLastLoginTime(new Date());
                 user.setUpdateTime(new Date());
-                loginMapper.updateById(user);
+                user.setOnline(true);
+                userMapper.updateById(user);
             }).start();
             return user;  // 返回用户信息供后续使用
         } catch (AuthenticationException e) {

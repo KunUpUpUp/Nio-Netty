@@ -24,8 +24,8 @@ public class LoginHandler extends SimpleChannelInboundHandler<LoginMessage> {
 
     // 防止并发导致登录用户错乱
     // 不过这里是prototype，并不会共享，所以是线程安全的  —— 不对，静态变量是共享的，并不会因为是prototype就安全了
-    final static ConcurrentHashMap<Long, Channel> USER_MAP = new ConcurrentHashMap<>();
-    final static ConcurrentHashMap<Long, tUser> ID_USER = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Long, Channel> USER_MAP = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Long, tUser> ID_USER = new ConcurrentHashMap<>();
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LoginMessage msg) {

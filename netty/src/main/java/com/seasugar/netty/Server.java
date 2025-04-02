@@ -1,5 +1,7 @@
 package com.seasugar.netty;
 
+import com.seasugar.netty.dao.UserMapper;
+import com.seasugar.netty.entity.tUser;
 import com.seasugar.netty.handler.*;
 import com.seasugar.netty.protocol.MessageDuplxCodec;
 import com.seasugar.netty.protocol.ProcotolFrameDecoder;
@@ -21,12 +23,20 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import java.util.Map;
+
+import static com.seasugar.netty.handler.LoginHandler.ID_USER;
+import static com.seasugar.netty.handler.LoginHandler.USER_MAP;
+
+
 @Slf4j
 @SpringBootApplication
 public class Server {
 
     @Autowired
     private ApplicationContext applicationContext;
+    @Autowired
+    private UserMapper userMapper;
 
     public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(Server.class, args);
@@ -56,6 +66,13 @@ public class Server {
                                                 if (evt instanceof IdleStateEvent) {
                                                     IdleStateEvent event = (IdleStateEvent) evt;
                                                     if (event.state() == IdleState.READER_IDLE) {
+                                                        new Thread(() -> {
+                                                            tUser tUser = NettyUtils.getUserByChannel(ctx);
+                                                            if (tUser != null) {
+                                                                tUser.setOnline(false);
+                                                                userMapper.updateById(tUser);
+                                                            }
+                                                        }).start();
                                                         ctx.channel().close();
                                                     }
                                                 }

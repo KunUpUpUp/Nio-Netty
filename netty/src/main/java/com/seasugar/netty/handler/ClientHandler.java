@@ -13,7 +13,8 @@ import java.util.concurrent.Semaphore;
 @Slf4j
 @Component
 public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> {
-//    private final Semaphore semaphore = new Semaphore(0);
+    //    private final Semaphore semaphore = new Semaphore(0);
+    private byte exitType;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -66,7 +67,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                         groupMessage.setUserIds(sc.nextLine());
                         ctx.writeAndFlush(groupMessage);
                         break;
-                    case "quit" :
+                    case "quit":
                         QuitGroupMessage quitGroupMessage = new QuitGroupMessage();
                         log.info("请输入群id:");
                         quitGroupMessage.setGroupId(sc.nextLong());
@@ -76,6 +77,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                         break;
                     case "exit":
                         ctx.close();
+                        exitType = 0x00;
                         return;
                     default:
                         break;
@@ -98,7 +100,11 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("5min无数据发送，客户端自动断开连接");
+        if (exitType == 0x00) {
+            log.info("客户端自己断开连接");
+        } else {
+            log.info("5min无数据发送，客户端自动断开连接");
+        }
         ctx.close();
     }
 

@@ -15,5 +15,6 @@ public class tUser {
     private Date lastLoginTime;
     private Date createTime;
     private Date updateTime;
+    private boolean isOnline;
     private boolean isDeleted;
 }
