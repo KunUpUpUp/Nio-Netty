@@ -10,6 +10,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,6 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+@Slf4j
 @SpringBootApplication
 public class Server {
 
@@ -44,6 +49,18 @@ public class Server {
                                         .addLast(new LoggingHandler(LogLevel.INFO))
                                         .addLast(new ProcotolFrameDecoder())
                                         .addLast(new MessageDuplxCodec())
+                                        .addLast(new IdleStateHandler(300, 0, 0))
+                                        .addLast(new ChannelDuplexHandler() {
+                                            @Override
+                                            public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+                                                if (evt instanceof IdleStateEvent) {
+                                                    IdleStateEvent event = (IdleStateEvent) evt;
+                                                    if (event.state() == IdleState.READER_IDLE) {
+                                                        ctx.channel().close();
+                                                    }
+                                                }
+                                            }
+                                        })
                                         .addLast(applicationContext.getBean(LoginHandler.class))
                                         .addLast(applicationContext.getBean(ChatHandler.class))
                                         .addLast(applicationContext.getBean(GroupHandler.class))

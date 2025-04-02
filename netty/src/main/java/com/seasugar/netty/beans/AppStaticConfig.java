@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.seasugar.netty.dao.GroupMapper;
 import com.seasugar.netty.entity.tGroup;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.DataAccessException;
@@ -15,12 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class AppStaticConfig {
     private static final String USER_ID_SPLIT_REGEX = ",";
-    private final GroupMapper groupMapper;
+    @Autowired
+    private GroupMapper groupMapper;
 
     // 构造器注入（推荐方式）
-    public AppStaticConfig(GroupMapper groupMapper) {
-        this.groupMapper = groupMapper;
-    }
+//    public AppStaticConfig(GroupMapper groupMapper) {
+//        this.groupMapper = groupMapper;
+//    }
 
     @Bean("GROUP_MAP")
     public Map<Long, List<String>> initGroupMap() {

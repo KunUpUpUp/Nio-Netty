@@ -6,21 +6,16 @@ import com.seasugar.netty.dao.GroupMapper;
 import com.seasugar.netty.entity.tGroup;
 import com.seasugar.netty.message.GroupMessage;
 import com.seasugar.netty.message.ResponseMessage;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import static com.seasugar.netty.handler.LoginHandler.ID_USER;
 import static com.seasugar.netty.handler.LoginHandler.USER_MAP;
 
 @Slf4j

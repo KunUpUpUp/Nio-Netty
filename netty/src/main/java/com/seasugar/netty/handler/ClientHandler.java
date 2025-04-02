@@ -96,6 +96,11 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
 //        semaphore.release();
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        log.info("5min无数据发送，客户端自动断开连接");
+        ctx.close();
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
