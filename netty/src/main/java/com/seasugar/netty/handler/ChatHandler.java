@@ -35,6 +35,8 @@ public class ChatHandler extends SimpleChannelInboundHandler<ChatMessage> {
             if (USER_MAP.containsKey(msg.getTo())) {
                 ctx.writeAndFlush(new ResponseMessage(ID_USER.get(msg.getFrom()).getNickname(), (byte) 0x00, msg.getFrom(), msg.getMsg(), (byte) 0x01));
                 USER_MAP.get(msg.getTo()).writeAndFlush(new ResponseMessage(ID_USER.get(msg.getFrom()).getNickname(), (byte) 0x00, msg.getFrom(), msg.getMsg(), (byte) 0x01));
+            } else {
+                ctx.writeAndFlush(new ResponseMessage("服务器", (byte) 0x00, msg.getFrom(), "对方不在线", (byte) 0x00));
             }
         } else if (msg.getMessageType() == 0x01) {
             // 群聊

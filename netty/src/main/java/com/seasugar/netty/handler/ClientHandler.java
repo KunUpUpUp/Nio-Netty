@@ -49,7 +49,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                         } else if (messageType == 0x01) {
                             log.info("请输入内容:");
                             chatMessage.setMsg(sc.nextLine());
-                            log.info("请输入id:");
+                            log.info("请输入您的id:");
                             chatMessage.setFrom(sc.nextLong());
                             log.info("请输入群聊id:");
                             chatMessage.setTo(sc.nextLong());

@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
+import static com.seasugar.netty.handler.LoginHandler.USER_MAP;
+
 @Slf4j
 @Handler
 @Scope("prototype")
@@ -35,6 +37,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         new Thread(() -> {
             tUser tUser = NettyUtils.getUserByChannel(ctx);
             if (tUser != null) {
+                USER_MAP.remove(tUser.getId());
                 tUser.setOnline(false);
                 userMapper.updateById(tUser);
             }

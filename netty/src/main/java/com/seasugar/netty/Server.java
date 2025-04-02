@@ -71,6 +71,7 @@ public class Server {
                                                             if (tUser != null) {
                                                                 tUser.setOnline(false);
                                                                 userMapper.updateById(tUser);
+                                                                USER_MAP.remove(tUser.getId());
                                                             }
                                                         }).start();
                                                         ctx.channel().close();
