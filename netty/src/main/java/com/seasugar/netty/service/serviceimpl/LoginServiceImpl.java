@@ -3,7 +3,7 @@ package com.seasugar.netty.service.serviceimpl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.seasugar.netty.dao.UserMapper;
-import com.seasugar.netty.entity.tUser;
+import com.seasugar.netty.entity.User;
 import com.seasugar.netty.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class LoginServiceImpl implements LoginService {
     private UserMapper userMapper;
 
     @Override
-    public tUser login(String username, String password) {
+    public User login(String username, String password) {
         try {
             // 参数校验
             if (StringUtils.isBlank(username)) {
@@ -29,8 +29,8 @@ public class LoginServiceImpl implements LoginService {
             }
 
             // 构建查询条件（使用Lambda表达式防止字段名拼写错误）
-            tUser user = userMapper.selectOne(new LambdaQueryWrapper<tUser>()
-                    .eq(tUser::getUsername, username)
+            User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                    .eq(User::getUsername, username)
                     .last("LIMIT 1"));  // 明确限制只查一条记录
 
             // 用户不存在检查

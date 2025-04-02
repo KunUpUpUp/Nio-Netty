@@ -1,7 +1,7 @@
 package com.seasugar.netty.service;
 
-import com.seasugar.netty.entity.tUser;
+import com.seasugar.netty.entity.User;
 
 public interface LoginService {
-    tUser login(String username, String password);
+    User login(String username, String password);
 }

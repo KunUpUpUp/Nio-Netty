@@ -1,7 +1,7 @@
 package com.seasugar.netty;
 
 import com.seasugar.netty.dao.UserMapper;
-import com.seasugar.netty.entity.tUser;
+import com.seasugar.netty.entity.User;
 import com.seasugar.netty.handler.*;
 import com.seasugar.netty.protocol.MessageDuplxCodec;
 import com.seasugar.netty.protocol.ProcotolFrameDecoder;
@@ -23,9 +23,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import java.util.Map;
-
-import static com.seasugar.netty.handler.LoginHandler.ID_USER;
 import static com.seasugar.netty.handler.LoginHandler.USER_MAP;
 
 
@@ -45,7 +42,7 @@ public class Server {
     @Bean // 使用@Bean初始化Netty服务
     public CommandLineRunner run() {
         return args -> {
-            EventLoopGroup bossGroup = new NioEventLoopGroup();
+            EventLoopGroup bossGroup = new NioEventLoopGroup(1);
             EventLoopGroup workerGroup = new NioEventLoopGroup();
 
             try {
@@ -67,7 +64,7 @@ public class Server {
                                                     IdleStateEvent event = (IdleStateEvent) evt;
                                                     if (event.state() == IdleState.READER_IDLE) {
                                                         new Thread(() -> {
-                                                            tUser tUser = NettyUtils.getUserByChannel(ctx);
+                                                            User tUser = NettyUtils.getUserByChannel(ctx);
                                                             if (tUser != null) {
                                                                 tUser.setOnline(false);
                                                                 userMapper.updateById(tUser);

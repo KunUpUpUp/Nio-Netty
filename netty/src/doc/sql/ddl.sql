@@ -11,21 +11,19 @@ CREATE TABLE `t_group` (
                            `is_deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除标记(0-未删除,1-已删除)',
                            PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='群聊表';
-
 -- chatroom.t_msg definition
 
 CREATE TABLE `t_msg` (
                          `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
                          `sender_id` bigint NOT NULL COMMENT '发送者id',
                          `receiver_id` bigint NOT NULL COMMENT '接收者id',
+                         `group_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '群聊id（为空即私聊）',
                          `content` varchar(2000) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '消息内容',
                          `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                          `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                          `is_deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除标记(0-未删除,1-已删除)',
-                         PRIMARY KEY (`id`),
-                         UNIQUE KEY `uk_sid` (`sender_id`),
-                         UNIQUE KEY `uk_rid` (`receiver_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='信息表';
+                         PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1907397463969980419 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='信息表';
 
 -- chatroom.t_user definition
 

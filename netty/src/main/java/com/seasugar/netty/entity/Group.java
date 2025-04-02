@@ -1,11 +1,13 @@
 package com.seasugar.netty.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class tGroup {
+@TableName("t_group")
+public class Group {
     private Long id;
     private Long owner;
     private String groupName;

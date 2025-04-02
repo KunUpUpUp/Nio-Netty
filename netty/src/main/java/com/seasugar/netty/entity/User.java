@@ -1,11 +1,13 @@
 package com.seasugar.netty.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class tUser {
+@TableName("t_user")
+public class User {
     private Long id;
     private String username;
     private String password;

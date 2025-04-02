@@ -1,8 +1,9 @@
 package com.seasugar.netty.beans;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.seasugar.netty.dao.GroupMapper;
-import com.seasugar.netty.entity.tGroup;
+import com.seasugar.netty.entity.Group;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class AppStaticConfig {
     private static final String USER_ID_SPLIT_REGEX = ",";
+
     @Autowired
     private GroupMapper groupMapper;
 
@@ -27,18 +29,37 @@ public class AppStaticConfig {
     @Bean("GROUP_MAP")
     public Map<Long, List<String>> initGroupMap() {
         ConcurrentHashMap<Long, List<String>> map = new ConcurrentHashMap<>();
-        loadGroupData(map);
+        getGroupMap(map);
+        return map;
+    }
+
+    @Bean("ID_GROUP")
+    public Map<Long, Group> initIdGroup() {
+        ConcurrentHashMap<Long, Group> map = new ConcurrentHashMap<>();
+        getIdGroupMap(map);
         return map;
     }
 
     /**
      * 加载群组数据并处理异常
      */
-    private void loadGroupData(Map<Long, List<String>> targetMap) {
+    private void getGroupMap(Map<Long, List<String>> targetMap) {
         try {
-            List<tGroup> groups = queryGroupsFromDB();
+            List<Group> groups = queryGroupsFromDB();
             populateMapData(targetMap, groups);
             log.info("Group map initialized with {} entries", groups.size());
+        } catch (DataAccessException e) {
+            log.error("Failed to initialize group map", e);
+            throw new IllegalStateException("Group data initialization failed", e);
+        }
+    }
+
+    private void getIdGroupMap(Map<Long, Group> targetMap) {
+        try {
+            List<Group> groups = queryGroupsFromDB();
+            groups.forEach(group -> {
+                targetMap.put(group.getId(), group);
+            });
         } catch (DataAccessException e) {
             log.error("Failed to initialize group map", e);
             throw new IllegalStateException("Group data initialization failed", e);
@@ -48,15 +69,16 @@ public class AppStaticConfig {
     /**
      * 数据库查询封装
      */
-    private List<tGroup> queryGroupsFromDB() {
+    private List<Group> queryGroupsFromDB() {
         return Optional.ofNullable(groupMapper.selectList(Wrappers.emptyWrapper()))
                 .orElseGet(Collections::emptyList);
     }
 
+
     /**
      * 数据转换处理
      */
-    private void populateMapData(Map<Long, List<String>> map, List<tGroup> groups) {
+    private void populateMapData(Map<Long, List<String>> map, List<Group> groups) {
         groups.stream()
                 .filter(Objects::nonNull)
                 .forEach(group -> {

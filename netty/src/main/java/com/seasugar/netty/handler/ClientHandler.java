@@ -11,7 +11,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 @Slf4j
-@Component
 public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> {
     //    private final Semaphore semaphore = new Semaphore(0);
     private byte exitType;
@@ -77,7 +76,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
                         break;
                     case "exit":
                         ctx.close();
-                        exitType = 0x00;
+                        exitType = 0x01;
                         return;
                     default:
                         break;
@@ -100,7 +99,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ResponseMessage> 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (exitType == 0x00) {
+        if (exitType == 0x01) {
             log.info("客户端自己断开连接");
         } else {
             log.info("5min无数据发送，客户端自动断开连接");

@@ -3,7 +3,7 @@ package com.seasugar.netty.handler;
 import com.seasugar.netty.NettyUtils;
 import com.seasugar.netty.annotation.Handler;
 import com.seasugar.netty.dao.UserMapper;
-import com.seasugar.netty.entity.tUser;
+import com.seasugar.netty.entity.User;
 import com.seasugar.netty.message.ResponseMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -35,7 +35,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         new Thread(() -> {
-            tUser tUser = NettyUtils.getUserByChannel(ctx);
+            User tUser = NettyUtils.getUserByChannel(ctx);
             if (tUser != null) {
                 USER_MAP.remove(tUser.getId());
                 tUser.setOnline(false);

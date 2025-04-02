@@ -3,7 +3,7 @@ package com.seasugar.netty.handler;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.seasugar.netty.annotation.Handler;
 import com.seasugar.netty.dao.GroupMapper;
-import com.seasugar.netty.entity.tGroup;
+import com.seasugar.netty.entity.Group;
 import com.seasugar.netty.message.GroupMessage;
 import com.seasugar.netty.message.ResponseMessage;
 import io.netty.channel.ChannelHandlerContext;
@@ -36,7 +36,7 @@ public class GroupHandler extends SimpleChannelInboundHandler<GroupMessage> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, GroupMessage msg) throws Exception {
-        QueryWrapper<tGroup> wrapper = new QueryWrapper<>();
+        QueryWrapper<Group> wrapper = new QueryWrapper<>();
         wrapper.select("max(id) as maxId");
         Map<String, Object> map = groupMapper.selectMaps(wrapper).get(0);
         Long maxId = map == null ? 1L : (Long) map.get("maxId") + 1;
@@ -58,7 +58,7 @@ public class GroupHandler extends SimpleChannelInboundHandler<GroupMessage> {
         String[] users = userList.split(",");
         if (users.length > 1) {
             // 群聊
-            tGroup group = new tGroup();
+            Group group = new Group();
             group.setId(groupId);
             group.setGroupName(msg.getGroupName());
             group.setOwner(msg.getFrom());
